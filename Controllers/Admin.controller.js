@@ -2,11 +2,17 @@ import { Admin_Model } from "../Models/Admin.model.js";
 import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken'
-import {   blogImg} from "../Config/imageupload.js";
+import { blogImg } from "../Config/imageupload.js";
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv'
 import { Sweets_Model } from "../Models/sweets.model.js";
 import { Blog_Model } from "../Models/Blog_story.model.js";
+import { Contact_Model } from "../Models/contact.model.js";
+import { Carreer_Model } from "../Models/career.model.js";
+import { Innovation_Model } from "../Models/innnovation.model.js";
+import { Growth_Model } from "../Models/growth.model.js";
+import { Implementation_Model } from "../Models/implementation.model.js";
+import { Optimization_Model } from "../Models/optimization.model.js";
 dotenv.config();
 const baseURL = process.env.BASE_URL;
 
@@ -58,7 +64,7 @@ export const getBlogStory = async (req, res) => {
         if (!story) {
             return res.status(404).json({
                 success: false,
-                Message: 'Blog story not found with this ID' 
+                Message: 'Blog story not found with this ID'
             });
         }
 
@@ -66,13 +72,13 @@ export const getBlogStory = async (req, res) => {
         // ise front-end seedhe <img src="..."> mein use kar sakta hai.
         res.status(200).json({
             success: true,
-            data: story 
+            data: story
         });
 
     } catch (error) {
         console.error("Error fetching blog story:", error);
         if (error.kind === 'ObjectId') {
-             return res.status(400).json({ success: false, Message: 'Invalid ID format' });
+            return res.status(400).json({ success: false, Message: 'Invalid ID format' });
         }
         res.status(500).json({
             success: false,
@@ -97,14 +103,14 @@ export const updatestory = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        
+
         // अब, req.file और req.body उपलब्ध होंगे (अगर फाइल अपलोड हुई है तो)
-        
+
         try {
             // 2. URL से ब्लॉग की ID और बॉडी से डेटा प्राप्त करें
             const { title, category, description,
                 _id
-             } = req.body;
+            } = req.body;
 
             // 3. डेटाबेस में उस ID का ब्लॉग ढूंढें
             const blogToUpdate = await Blog_Model.findById({ _id });
@@ -133,7 +139,7 @@ export const updatestory = async (req, res) => {
 
             // 6. अपडेट किए गए ब्लॉग को डेटाबेस में सेव करें
             const updatedBlog = await blogToUpdate.save();
-            
+
             // 7. सफलता का संदेश भेजें
             res.status(200).json({
                 message: "Blog story updated successfully!",
@@ -147,7 +153,7 @@ export const updatestory = async (req, res) => {
     });
 };
 
- export const deleteStory = async (req, res) => {
+export const deleteStory = async (req, res) => {
     const { id } = req.params;
     try {
         const story = await Blog_Model.findByIdAndDelete(id);
@@ -161,29 +167,29 @@ export const updatestory = async (req, res) => {
     }
 };
 export const getBlogStoryById = async (req, res) => {
-  try {
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-    // Validate ID format
-    if (!id || id === "undefined") {
-      return res.status(400).json({ message: "Invalid or missing ID" });
+        // Validate ID format
+        if (!id || id === "undefined") {
+            return res.status(400).json({ message: "Invalid or missing ID" });
+        }
+
+        const blog = await Blog_Model.findById(id);
+
+        if (!blog) {
+            return res.status(404).json({ message: "Blog story not found" });
+        }
+
+        res.status(200).json({ message: "Success", data: blog });
+
+    } catch (error) {
+        console.error("Error fetching blog story:", error.message);
+        res.status(500).json({
+            message: "Server Error",
+            error: error.message
+        });
     }
-
-    const blog = await Blog_Model.findById(id);
-
-    if (!blog) {
-      return res.status(404).json({ message: "Blog story not found" });
-    }
-
-    res.status(200).json({ message: "Success", data: blog });
-
-  } catch (error) {
-    console.error("Error fetching blog story:", error.message);
-    res.status(500).json({
-      message: "Server Error",
-      error: error.message
-    });
-  }
 };
 
 
@@ -241,78 +247,10 @@ export const addBlogStory = async (req, res) => {
 //         });
 //     });
 // }
-// export const blogList = async (req, res) => {
-//     try {
-//         const { page = 1 } = req.query;
-//         const perPage = 10;
 
-//         const blogData = await Blog_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
-//         const totalCount = await Blog_Model.countDocuments();
-//         const totalPages = Math.ceil(totalCount / perPage);
-//         let i = 0;
-//         const updatedBlog = blogData?.map((blog) => {
-//             i++;
-//             return {
-//                 ...blog.toObject(),
-//                 orderId: i,
-//             };
-//         });
-//         const paginationDetails = {
-//             current_page: parseInt(page),
-//             data: updatedBlog,
-//             first_page_url: `${baseURL}api/admin?page=1`,
-//             from: (page - 1) * perPage + 1,
-//             last_page: totalPages,
-//             last_page_url: `${baseURL}api/admin?page=${totalPages}`,
-//             links: [
-//                 {
-//                     url: null,
-//                     label: "&laquo; Previous",
-//                     active: false,
-//                 },
-//                 {
-//                     url: `${baseURL}api/admin?page=${page}`,
-//                     label: page.toString(),
-//                     active: true,
-//                 },
-//                 {
-//                     url: null,
-//                     label: "Next &raquo;",
-//                     active: false,
-//                 },
-//             ],
-//             next_page_url: null,
-//             path: `${baseURL}api/admin`,
-//             per_page: perPage,
-//             prev_page_url: null,
-//             to: (page - 1) * perPage + updatedBlog.length,
-//             total: totalCount,
-//         };
-//         console.log("paginationDetails", paginationDetails);
-
-//         return res.status(200).json({
-//             blogData: paginationDetails,
-//             page: page.toString(),
-//             total_rows: totalCount,
-//         });
-//     }
-//     catch (error) {
-//         console.error("Error fetching sweetsData:", error);
-//         return res.status(500).json({
-//             status: false,
-//             message: "Something went wrong while fetching sweets",
-//             error: error.message
-//         });
-//     }
-// }
-// Aapka updated blogList function
-// controllers/adminController.js (Backend)
 
 export const blogList = async (req, res) => {
     try {
-        // ... aapka page, perPage wala code
-        
-        // Yahan apne backend ka URL daalein. Best hai ki isko .env file mein rakhein.
         const baseURL = process.env.BASE_URL || 'http://localhost:8000'; // PORT 8000 YA JO BHI AAPKA HAI
 
         const blogData = await Blog_Model.find().sort({ createdAt: -1 }) //... baaki ka code
@@ -400,3 +338,400 @@ export const DeleteDecoration = async (req, res) => {
     }
 }
 
+export const getContactList = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const contactData = await Contact_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Contact_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedContact = contactData?.map((contact) => {
+            i++;
+            return {
+                ...contact.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedContact,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedContact.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            contactData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+
+export const getCareerist = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const careerData = await Carreer_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Carreer_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedCareer = careerData?.map((career) => {
+            i++;
+            return {
+                ...career.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedCareer,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedCareer.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            careerData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+export const getInnovationList = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const innovationData = await Innovation_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Innovation_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedInnovation = innovationData?.map((innovation) => {
+            i++;
+            return {
+                ...innovation.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedInnovation,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedInnovation.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            InnovationData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+
+export const getGrowthList = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const growthData = await Growth_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Growth_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedGrowth = growthData?.map((growth) => {
+            i++;
+            return {
+                ...growth.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedGrowth,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedGrowth.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            growthData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+export const getImplementationList = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const implementationData = await Implementation_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Implementation_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedImplementation = implementationData?.map((implementation) => {
+            i++;
+            return {
+                ...implementation.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedImplementation,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedImplementation.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            implementationData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+export const getOptimizationList = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const optimizationData = await Optimization_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Optimization_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedOptimization = optimizationData?.map((growth) => {
+            i++;
+            return {
+                ...growth.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedOptimization,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedOptimization.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            optimizationData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
