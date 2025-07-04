@@ -5,7 +5,7 @@ import fs from "fs";
 
 const BlogFile = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/blog/");
+    cb(null, "uploads/blog");
   },
   filename: async (req, file, cb) => {
     try {
@@ -37,7 +37,9 @@ const uploadBlogImg = multer({
 
 const blogImg = uploadBlogImg;
 
-export {  blogImg };
+export { blogImg };
+
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/blog/');
