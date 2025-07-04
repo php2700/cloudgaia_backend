@@ -213,49 +213,11 @@ export const addBlogStory = async (req, res) => {
     });
 }
 
-// export const addBlogStory = async (req, res) => {
-//     blogImg.single("image")(req, res, async (err) => {
-//         if (err) {
-//             return res.status(400).json({ error: "Error uploading image" });
-//         }
-
-//         // Check if file was uploaded
-//         if (!req.file) {
-//             return res.status(400).json({ error: "Image is required." });
-//         }
-
-//         const { title, category, description } = req.body;
-
-//         if (!title || !description || !category) {
-//             return res.status(400).json({ error: "title,description and category are required." });
-//         }
-
-//         // Pura URL banayein
-//         const imageUrl = `${req.protocol}://${req.get('host')}/uploads/blog/${req.file.filename}`;
-
-//         const blogData = new Blog_Model({
-//             image: imageUrl, // <-- SAHI (Pura URL save karein)
-//             title, category, description
-//         });
-
-//         await blogData.save();
-
-//         // Response mein bhi pura URL bhej sakte hain (optional)
-//         return res.json({ 
-//             message: "Blog story added successfully!",
-//             filename: imageUrl 
-//         });
-//     });
-// }
-
 
 export const blogList = async (req, res) => {
     try {
-        const baseURL = process.env.BASE_URL || 'http://localhost:8000'; // PORT 8000 YA JO BHI AAPKA HAI
+        const blogData = await Blog_Model.find().sort({ createdAt: -1 })
 
-        const blogData = await Blog_Model.find().sort({ createdAt: -1 }) //... baaki ka code
-
-        // YAHAN PAR DHYAN DEIN
         const updatedBlog = blogData?.map((blog) => {
             return {
                 ...blog.toObject(),
@@ -276,7 +238,6 @@ export const blogList = async (req, res) => {
         });
 
     } catch (error) {
-        // ...
     }
 }
 

@@ -182,3 +182,52 @@ export const optimization = async (req, res) => {
         return res.status(400).json({ success: false, message: 'something_went_wrong' })
     }
 }
+
+
+export const getBlogList = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const perPage = 6;
+        const category = req.query.category;
+        const filter = {};
+        if (category) {
+            filter.category = category;
+        }
+
+        const blogData = await Blog_Model.find(filter).sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Blog_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedBlog = blogData?.map((blog) => {
+            i++;
+            return {
+                ...blog.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedBlog,
+            from: (page - 1) * perPage + 1,
+            per_page: perPage,
+            to: (page - 1) * perPage + updatedBlog.length,
+            total: totalCount,
+            totalPages: totalPages
+        };
+
+        return res.status(200).json({
+            blogData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}

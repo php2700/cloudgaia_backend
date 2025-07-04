@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, blogList, growth, Implementation, Innovation, optimization, registerCareer } from "../Controllers/UserController.js";
+import { addContactDetails, blogList, getBlogList, growth, Implementation, Innovation, optimization, registerCareer } from "../Controllers/UserController.js";
 const UserRouter = express.Router();
 
 UserRouter.post("/contact", addContactDetails)
@@ -15,10 +15,8 @@ UserRouter.post("/implementation", Implementation)
 
 UserRouter.post("/optimization", optimization)
 
-
 /*------------------- blog-list -------------*/
-UserRouter.get("/blog-list", blogList)
-
+UserRouter.get("/blog-list", getBlogList)
 
 
 export default UserRouter;
