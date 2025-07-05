@@ -13,6 +13,7 @@ import { Innovation_Model } from "../Models/innnovation.model.js";
 import { Growth_Model } from "../Models/growth.model.js";
 import { Implementation_Model } from "../Models/implementation.model.js";
 import { Optimization_Model } from "../Models/optimization.model.js";
+import { Blog_comment_Model } from "../Models/blog_comment.model.js";
 dotenv.config();
 const baseURL = process.env.BASE_URL;
 
@@ -86,72 +87,6 @@ export const getBlogStory = async (req, res) => {
         });
     }
 };
-export const updatestory = async (req, res) => {
-    // 1. Multer को कंट्रोलर के अंदर चलाएं
-    // blogImageUpload.single('image') एक मिडलवेयर फंक्शन बनाता है।
-    // हम इसे मैन्युअल रूप से req और res के साथ कॉल करेंगे।
-    // const upload = blogImg.single('image');
-
-    // upload(req, res, async (err) => {
-    //     // Multer से आने वाली किसी भी एरर को हैंडल करें
-    //     if (err) {
-    //         // जैसे, गलत फाइल टाइप या फाइल साइज लिमिट से ज्यादा
-    //         console.error("Multer Error:", err.message);
-    //         return res.status(400).json({ message: err.message });
-    //     }
-    blogImg.single("image")(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ error: "Error uploading image" });
-        }
-
-        // अब, req.file और req.body उपलब्ध होंगे (अगर फाइल अपलोड हुई है तो)
-
-        try {
-            // 2. URL से ब्लॉग की ID और बॉडी से डेटा प्राप्त करें
-            const { title, category, description,
-                _id
-            } = req.body;
-
-            // 3. डेटाबेस में उस ID का ब्लॉग ढूंढें
-            const blogToUpdate = await Blog_Model.findById({ _id });
-
-            if (!blogToUpdate) {
-                return res.status(404).json({ message: "Blog story not found." });
-            }
-
-            // 4. अगर कोई नई इमेज फाइल अपलोड हुई है (req.file मौजूद है), तो उसे अपडेट करें
-            if (req.file) {
-                // (Recommended) पुरानी इमेज को सर्वर से डिलीट करें
-                if (blogToUpdate.image) {
-                    const oldImagePath = path.join('uploads', blogToUpdate.image);
-                    if (fs.existsSync(oldImagePath)) {
-                        fs.unlinkSync(oldImagePath);
-                    }
-                }
-                // नई इमेज का नाम असाइन करें
-                blogToUpdate.image = req.file.filename;
-            }
-
-            // 5. बाकी फ़ील्ड्स को नए डेटा से अपडेट करें
-            if (title) blogToUpdate.title = title;
-            if (category) blogToUpdate.category = category;
-            if (description) blogToUpdate.description = description;
-
-            // 6. अपडेट किए गए ब्लॉग को डेटाबेस में सेव करें
-            const updatedBlog = await blogToUpdate.save();
-
-            // 7. सफलता का संदेश भेजें
-            res.status(200).json({
-                message: "Blog story updated successfully!",
-                data: updatedBlog
-            });
-
-        } catch (error) {
-            console.error("Update Story Error:", error);
-            res.status(500).json({ message: "Server Error", error: error.message });
-        }
-    });
-};
 
 export const deleteStory = async (req, res) => {
     const { id } = req.params;
@@ -198,20 +133,61 @@ export const addBlogStory = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { title, category, description } = req.body;
+        const { title, category, description, content } = req.body;
 
         if (!title || !description || !category) {
             return res.status(400).json({ error: "title,description and category are required." });
         }
-
         const blogData = new Blog_Model({
             image: "uploads/blog/" + req.file?.filename,
-            title, category, description
+            title, category, description, content
         });
         await blogData.save();
         return res.json({ filename: "uploads/blog/" + req.file?.filename });
     });
 }
+
+export const updateBlogStory = async (req, res) => {
+    blogImg.single("image")(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ error: "Error uploading image" });
+        }
+        try {
+            const { title, category, description, content,
+                _id
+            } = req.body;
+            const blogToUpdate = await Blog_Model.findById({ _id });
+
+            if (!blogToUpdate) {
+                return res.status(404).json({ message: "Blog story not found." });
+            }
+            if (req.file) {
+                if (blogToUpdate.image) {
+                    const oldImagePath = path.join('uploads', blogToUpdate.image);
+                    if (fs.existsSync(oldImagePath)) {
+                        fs.unlinkSync(oldImagePath);
+                    }
+                }
+                blogToUpdate.image = "uploads/blog/" + req.file?.filename
+            }
+            if (title) blogToUpdate.title = title;
+            if (category) blogToUpdate.category = category;
+            if (description) blogToUpdate.description = description;
+            if (content) blogToUpdate.content = content;
+            const updatedBlog = await blogToUpdate.save();
+            res.status(200).json({
+                message: "Blog story updated successfully!",
+                data: updatedBlog
+            });
+
+        } catch (error) {
+            console.error("Update Story Error:", error);
+            res.status(500).json({ message: "Server Error", error: error.message });
+        }
+    });
+};
+
+
 
 
 export const blogList = async (req, res) => {
@@ -682,6 +658,75 @@ export const getOptimizationList = async (req, res) => {
 
         return res.status(200).json({
             optimizationData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+
+export const getBlogComments = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const blogCommentData = await Blog_comment_Model.find()
+            .populate('blogId')
+            .sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Blog_comment_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedBlogComment = blogCommentData?.map((growth) => {
+            i++;
+            return {
+                ...growth.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedBlogComment,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedBlogComment.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            blogCommentData: paginationDetails,
             page: page.toString(),
             total_rows: totalCount,
         });

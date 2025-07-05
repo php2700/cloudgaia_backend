@@ -1,3 +1,4 @@
+import { Blog_comment_Model } from "../Models/blog_comment.model.js";
 import { Blog_Model } from "../Models/Blog_story.model.js";
 import { Carreer_Model } from "../Models/career.model.js";
 import { Contact_Model } from "../Models/contact.model.js";
@@ -217,6 +218,89 @@ export const getBlogList = async (req, res) => {
 
         return res.status(200).json({
             blogData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+export const getBlogDetail = async (req, res) => {
+    try {
+        const blogId = req.params._id;
+        console.log(blogId, "aaaaaaaaaaaaaaaaaaaaaaa")
+        const blogData = await Blog_Model.findOne({ _id: blogId });
+        if (blogData) {
+            return res.status(200).json({ success: true, blogDetail: blogData })
+        }
+        return res.status(500).json({
+            status: false,
+            message: "blog data not found",
+            error: error.message
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching blog data",
+            error: error.message
+        });
+    }
+}
+
+export const comment = async (req, res) => {
+    try {
+        console.log(req?.body, 'ff')
+        const { name, comment, blogId } = req.body;
+        if (!name || !comment) {
+            return res.status(400).json({ error: "name,comment  are required." });
+        }
+        const commentData = new Blog_comment_Model({
+            name, comment, blogId,
+        });
+        await commentData.save();
+        return res.status(200).json({ success: true, message: 'sucessfully_add' })
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'something_went_wrong' })
+    }
+}
+
+export const commentList = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const perPage = 10;
+        const _id = req.params._id;
+
+        const blogCommentData = await Blog_comment_Model.find({ blogId: _id }).sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Blog_comment_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedBlogComment = blogCommentData?.map((blog) => {
+            i++;
+            return {
+                ...blog.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedBlogComment,
+            from: (page - 1) * perPage + 1,
+            per_page: perPage,
+            to: (page - 1) * perPage + updatedBlogComment.length,
+            total: totalCount,
+            totalPages: totalPages
+        };
+
+        return res.status(200).json({
+            blogCommentData: paginationDetails,
             page: page.toString(),
             total_rows: totalCount,
         });
