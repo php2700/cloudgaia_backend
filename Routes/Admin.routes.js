@@ -2,7 +2,7 @@ import express from "express";
 
 import {
     addBlogStory,
-    authAdmin, blogList, deleteStory,  getBlogStory,
+    authAdmin, blogList, deleteStory, getBlogStory,
     getContactList,
     getCareerist,
     getInnovationList,
@@ -11,7 +11,10 @@ import {
     getOptimizationList,
     getBlogComments,
     updateBlogStory,
+    updatePrivacyPolicy,
+    updateCookieSetting,
     
+
 } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -50,6 +53,10 @@ AdminRouter.get('/optimization-list', Authentication, Authorization(["Admin"]), 
 /*-------------------------- blog-comments -----------------------------*/
 AdminRouter.get('/blog-comments', Authentication, Authorization(["Admin"]), getBlogComments);
 
+/*-------------------------- privacy-policy -----------------------------*/
+AdminRouter.post('/privacy-policy', Authentication, Authorization(["Admin"]), updatePrivacyPolicy);
 
+/*-------------------------- cookie-setting -----------------------------*/
+AdminRouter.post('/cookie-setting', Authentication, Authorization(["Admin"]), updateCookieSetting);
 
 export default AdminRouter;
