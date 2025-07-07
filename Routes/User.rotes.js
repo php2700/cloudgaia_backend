@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, blogList, comment, commentList, getBlogDetail, getBlogList, growth, Implementation, Innovation, optimization, registerCareer } from "../Controllers/UserController.js";
+import { addContactDetails, blogList, comment, commentList, getBlogDetail, getBlogList, getPrivacyPolicy, growth, Implementation, Innovation, optimization, registerCareer } from "../Controllers/UserController.js";
 const UserRouter = express.Router();
 
 UserRouter.post("/contact", addContactDetails)
@@ -23,6 +23,9 @@ UserRouter.get("/blog-detail/:_id", getBlogDetail)
 /*-------------------blog- comment -------------*/
 UserRouter.post("/blog-comment", comment)
 UserRouter.get("/comment-list/:_id", commentList)
+
+/*-----------------------*/
+UserRouter.get('/privacy-policy', getPrivacyPolicy);
 
 
 

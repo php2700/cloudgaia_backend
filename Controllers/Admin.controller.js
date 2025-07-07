@@ -14,6 +14,7 @@ import { Growth_Model } from "../Models/growth.model.js";
 import { Implementation_Model } from "../Models/implementation.model.js";
 import { Optimization_Model } from "../Models/optimization.model.js";
 import { Blog_comment_Model } from "../Models/blog_comment.model.js";
+import { Privacy_Policy_Model } from "../Models/privacy.policy.model.js";
 dotenv.config();
 const baseURL = process.env.BASE_URL;
 
@@ -741,3 +742,27 @@ export const getBlogComments = async (req, res) => {
     }
 
 }
+
+export const updatePrivacyPolicy = async (req, res) => {
+    try {
+        const { privacyPolicy } = req.body;
+        const isPrivacyPolicy = await Privacy_Policy_Model.findOne();
+        if (!isPrivacyPolicy) {
+            const newPolicy = new Privacy_Policy_Model({ privacyPolicy });
+            await newPolicy.save();
+            return res.status(201).json({
+                message: "Privacy policy added successfully!",
+            });
+        }
+        isPrivacyPolicy.privacyPolicy = privacyPolicy;
+        await isPrivacyPolicy.save();
+        return res.status(200).json({
+            message: "privacy policy updated successfully!",
+        });
+
+    } catch (error) {
+        console.error("Update  Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+

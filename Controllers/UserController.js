@@ -6,6 +6,7 @@ import { Growth_Model } from "../Models/growth.model.js";
 import { Implementation_Model } from "../Models/implementation.model.js";
 import { Innovation_Model } from "../Models/innnovation.model.js";
 import { Optimization_Model } from "../Models/optimization.model.js";
+import { Privacy_Policy_Model } from "../Models/privacy.policy.model.js";
 
 export const addContactDetails = async (req, res) => {
     try {
@@ -314,4 +315,19 @@ export const commentList = async (req, res) => {
         });
     }
 
+}
+
+export const getPrivacyPolicy = async (req, res) => {
+    try {
+        const isPrivacyPolicy = await Privacy_Policy_Model.findOne();
+        if (!isPrivacyPolicy) {
+            return res.status(404).json({ message: "privacy policy not found." });
+        }
+        return res.status(200).json({
+            privacyPolicy: isPrivacyPolicy
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
 }
