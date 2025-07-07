@@ -2,6 +2,7 @@ import { Blog_comment_Model } from "../Models/blog_comment.model.js";
 import { Blog_Model } from "../Models/Blog_story.model.js";
 import { Carreer_Model } from "../Models/career.model.js";
 import { Contact_Model } from "../Models/contact.model.js";
+import { Cookie_setting_Model } from "../Models/cookie.setting.model.js";
 import { Growth_Model } from "../Models/growth.model.js";
 import { Implementation_Model } from "../Models/implementation.model.js";
 import { Innovation_Model } from "../Models/innnovation.model.js";
@@ -325,6 +326,21 @@ export const getPrivacyPolicy = async (req, res) => {
         }
         return res.status(200).json({
             privacyPolicy: isPrivacyPolicy
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+}
+
+export const getCookieSetting = async (req, res) => {
+    try {
+        const isCookieSetting = await Cookie_setting_Model.findOne();
+        if (!isCookieSetting) {
+            return res.status(404).json({ message: "privacy policy not found." });
+        }
+        return res.status(200).json({
+            cookiesettingData: isCookieSetting
         });
     } catch (error) {
         console.error("Error:", error);

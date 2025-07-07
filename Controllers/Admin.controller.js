@@ -15,6 +15,7 @@ import { Implementation_Model } from "../Models/implementation.model.js";
 import { Optimization_Model } from "../Models/optimization.model.js";
 import { Blog_comment_Model } from "../Models/blog_comment.model.js";
 import { Privacy_Policy_Model } from "../Models/privacy.policy.model.js";
+import { Cookie_setting_Model } from "../Models/cookie.setting.model.js";
 dotenv.config();
 const baseURL = process.env.BASE_URL;
 
@@ -766,3 +767,26 @@ export const updatePrivacyPolicy = async (req, res) => {
     }
 };
 
+
+export const updateCookieSetting = async (req, res) => {
+    try {
+        const { description } = req.body;
+        const isCookieSetting = await Cookie_setting_Model.findOne();
+        if (!isCookieSetting) {
+            const newDescription = new Cookie_setting_Model({ description });
+            await newDescription.save();
+            return res.status(201).json({
+                message: "cookie setting added successfully!",
+            });
+        }
+        isCookieSetting.description = description;
+        await isCookieSetting.save();
+        return res.status(200).json({
+            message: "cookie setting updated successfully!",
+        });
+
+    } catch (error) {
+        console.error("Update  Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};

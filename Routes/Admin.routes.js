@@ -12,6 +12,7 @@ import {
     getBlogComments,
     updateBlogStory,
     updatePrivacyPolicy,
+    updateCookieSetting,
     
 
 } from "../Controllers/Admin.controller.js";
@@ -55,5 +56,7 @@ AdminRouter.get('/blog-comments', Authentication, Authorization(["Admin"]), getB
 /*-------------------------- privacy-policy -----------------------------*/
 AdminRouter.post('/privacy-policy', Authentication, Authorization(["Admin"]), updatePrivacyPolicy);
 
+/*-------------------------- cookie-setting -----------------------------*/
+AdminRouter.post('/cookie-setting', Authentication, Authorization(["Admin"]), updateCookieSetting);
 
 export default AdminRouter;
