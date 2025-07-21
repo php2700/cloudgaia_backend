@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, blogList, comment, commentList, getBlogDetail, getBlogList, getCookieSetting, getPrivacyPolicy, growth, Implementation, Innovation, optimization, registerCareer } from "../Controllers/UserController.js";
+import { addContactDetails, blogList, CloudImplement, comment, commentList, getBlogDetail, getBlogList, getCookieSetting, getPrivacyPolicy, growth, Implementation, Innovation, nonProfit, optimization, registerCareer } from "../Controllers/UserController.js";
 const UserRouter = express.Router();
 
 UserRouter.post("/contact", addContactDetails)
@@ -29,6 +29,14 @@ UserRouter.get('/privacy-policy', getPrivacyPolicy);
 
 /*-----------cookie setting------------*/
 UserRouter.get('/cookie-setting', getCookieSetting);
+
+    // clood
+UserRouter.post("/cloud", CloudImplement)
+
+
+//non-profit
+UserRouter.post("/non-profit", nonProfit)
+
 
 
 export default UserRouter;

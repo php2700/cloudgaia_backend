@@ -1,11 +1,13 @@
 import { Blog_comment_Model } from "../Models/blog_comment.model.js";
 import { Blog_Model } from "../Models/Blog_story.model.js";
 import { Carreer_Model } from "../Models/career.model.js";
+import { Cloud_Model } from "../Models/cloud.model.js";
 import { Contact_Model } from "../Models/contact.model.js";
 import { Cookie_setting_Model } from "../Models/cookie.setting.model.js";
 import { Growth_Model } from "../Models/growth.model.js";
 import { Implementation_Model } from "../Models/implementation.model.js";
 import { Innovation_Model } from "../Models/innnovation.model.js";
+import { Non_profit_Model } from "../Models/Non-profit.model.js";
 import { Optimization_Model } from "../Models/optimization.model.js";
 import { Privacy_Policy_Model } from "../Models/privacy.policy.model.js";
 
@@ -345,5 +347,41 @@ export const getCookieSetting = async (req, res) => {
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
+    }
+}
+
+
+export const CloudImplement = async (req, res) => {
+    try {
+        console.log(req?.body, 'ff')
+        const { firstName, lastName, email, country, company, message } = req.body;
+        if (!firstName || !lastName || !email  || !message || !country) {
+            return res.status(400).json({ error: "firstName,lastName,email,company,message and country are required." });
+        }
+
+        const careerData = new Cloud_Model({
+          firstName, lastName, email, country, company, message
+        });
+        await careerData.save();
+        return res.status(200).json({ success: true, message: 'sucessfully_add' })
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'something_went_wrong' })
+    }
+}
+
+export const nonProfit = async (req, res) => {
+    try {
+        console.log(req?.body, 'ff')
+        const { firstName, lastName, email, country, company, message } = req.body;
+        if (!firstName || !lastName || !email  || !message || !country) {
+            return res.status(400).json({ error: "firstName,lastName,email,company,message and country are required." });
+        }
+
+        const careerData = new Non_profit_Model({
+firstName, lastName, email, country, company, message        });
+        await careerData.save();
+        return res.status(200).json({ success: true, message: 'sucessfully_add' })
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'something_went_wrong' })
     }
 }

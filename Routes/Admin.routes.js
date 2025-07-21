@@ -13,7 +13,7 @@ import {
     updateBlogStory,
     updatePrivacyPolicy,
     updateCookieSetting,
-    
+
 
 } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
