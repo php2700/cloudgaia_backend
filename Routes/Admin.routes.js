@@ -13,6 +13,8 @@ import {
     updateBlogStory,
     updatePrivacyPolicy,
     updateCookieSetting,
+    getNonProfitList,
+    getDoordashList,
 
 
 } from "../Controllers/Admin.controller.js";
@@ -58,5 +60,12 @@ AdminRouter.post('/privacy-policy', Authentication, Authorization(["Admin"]), up
 
 /*-------------------------- cookie-setting -----------------------------*/
 AdminRouter.post('/cookie-setting', Authentication, Authorization(["Admin"]), updateCookieSetting);
+
+/*--------------------------nonProfit---------------------------- -*/
+AdminRouter.get('/non-profit-list', Authentication, Authorization(["Admin"]), getNonProfitList);
+
+/*--------------------------------- doordash ------------------------*/
+AdminRouter.get('/doordash-list', Authentication, Authorization(["Admin"]), getDoordashList);
+
 
 export default AdminRouter;
