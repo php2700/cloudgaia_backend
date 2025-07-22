@@ -16,6 +16,8 @@ import { Optimization_Model } from "../Models/optimization.model.js";
 import { Blog_comment_Model } from "../Models/blog_comment.model.js";
 import { Privacy_Policy_Model } from "../Models/privacy.policy.model.js";
 import { Cookie_setting_Model } from "../Models/cookie.setting.model.js";
+import { Non_profit_Model } from "../Models/Non-profit.model.js";
+import { Cloud_Model } from "../Models/cloud.model.js";
 dotenv.config();
 const baseURL = process.env.BASE_URL;
 
@@ -790,3 +792,137 @@ export const updateCookieSetting = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
+
+export const getNonProfitList = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const nonProftData = await Non_profit_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Non_profit_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedNonProfit = nonProftData?.map((nonProfit) => {
+            i++;
+            return {
+                ...nonProfit.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedNonProfit,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedNonProfit.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            nonProfitData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
+
+
+export const getDoordashList = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const perPage = 10;
+
+        const doordashData = await Cloud_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const totalCount = await Cloud_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedDoordash = doordashData?.map((doordash) => {
+            i++;
+            return {
+                ...doordash.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedDoordash,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedDoordash.length,
+            total: totalCount,
+        };
+        console.log("paginationDetails", paginationDetails);
+
+        return res.status(200).json({
+            doordashData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+
+}
